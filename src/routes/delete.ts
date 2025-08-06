@@ -17,7 +17,7 @@ const deleteReservation = async (req: any, res: any) => {
                 where: { id },
             })
             try {
-                await fetch('http://localhost:5000/send-email', {
+                await fetch('https://backend-python-biteandenjoy.onrender.com/send-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
