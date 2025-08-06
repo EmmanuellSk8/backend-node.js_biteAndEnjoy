@@ -1,7 +1,5 @@
 import { ReservationDTO } from "../DTO/reservation.DTO";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 const updateReservation = async (req: any, res: any) => {
     if (req.method === "PATCH") {

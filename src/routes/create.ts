@@ -1,8 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 import { ReservationDTO } from "../DTO/reservation.DTO";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 const createReservation = async (req: any, res: any) => {
     const { name, cedula, date, email, phoneNumber, quantityPeople }: ReservationDTO = req.body;
