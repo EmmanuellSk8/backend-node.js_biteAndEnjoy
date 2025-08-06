@@ -5,6 +5,7 @@ const updateReservation = async (req: any, res: any) => {
     if (req.method === "PATCH") {
         const { id } = req.params
         const data = req.body as Partial<ReservationDTO>
+        const backend_url = process.env.BACKEND_URL
 
         if (Object.entries(data).length === 0) {
             res.status(400).json({ error: 'No hay datos para actualizar' });
@@ -43,7 +44,7 @@ const updateReservation = async (req: any, res: any) => {
             });
 
             try {
-                await fetch('https://backend-python-biteandenjoy.onrender.com/send-email', {
+                await fetch(`${backend_url}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

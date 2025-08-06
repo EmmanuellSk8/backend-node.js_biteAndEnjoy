@@ -3,7 +3,7 @@ import { prisma } from "../lib/prisma";
 const deleteReservation = async (req: any, res: any) => {
     if (req.method === "DELETE") {
         const { id } = req.params;
-
+        const backend_url = process.env.BACKEND_URL
         try {
             const reservation = await prisma.reservations.findUnique({
                 where: { id }
@@ -17,7 +17,7 @@ const deleteReservation = async (req: any, res: any) => {
                 where: { id },
             })
             try {
-                await fetch('https://backend-python-biteandenjoy.onrender.com/send-email', {
+                await fetch(`${backend_url}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

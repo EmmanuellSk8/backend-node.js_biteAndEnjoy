@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 
 const createReservation = async (req: any, res: any) => {
     const { name, cedula, date, email, phoneNumber, quantityPeople }: ReservationDTO = req.body;
+    const backend_url = process.env.BACKEND_URL
 
     if (!name || !cedula || !email || !date || !phoneNumber || !quantityPeople) {
         res.status(400).json({ error: "Faltan campos obligatorios" })
@@ -43,7 +44,7 @@ const createReservation = async (req: any, res: any) => {
         })
 
         try {
-            await fetch('https://backend-python-biteandenjoy.onrender.com/send-email', {
+            await fetch(`${backend_url}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
