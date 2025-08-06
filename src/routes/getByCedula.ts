@@ -2,7 +2,7 @@ import { prisma } from "../lib/prisma";
 
 const getReservationByCedula = async (req: any, res: any) => {
     const { cedula } = req.params
-
+console.log("dataaaaaa urlll:", process.env.DATABASE_URL)
     try {
         if (!cedula) {
             return res.status(400).json({ error: "Cédula no proporcionada" });
