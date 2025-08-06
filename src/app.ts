@@ -6,6 +6,7 @@ import getReservationById from "./routes/getById";
 import getReservations from "./routes/get";
 import getReservationByCedula from "./routes/getByCedula";
 import cors from "cors";
+import testConnection from "./routes/test";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(cors({
 }));
 app.use(express.json())
 app.use('/api/create', createReservation)
+app.use('/api/test', testConnection)
 app.use('/api/allDates', getReservations)
 app.use('/api/get/user/:id', getReservationById)
 app.use('/api/get/cedula/:cedula', getReservationByCedula)
