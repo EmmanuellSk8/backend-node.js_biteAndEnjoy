@@ -1,13 +1,18 @@
-import { prisma } from "../lib/prisma";
+import { Client } from 'pg';
 
-const testConnection = async (req: any, res: any) => {
+export default async function handler(req: any, res: any) {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+  });
+
   try {
-    await prisma.$connect();
-    res.status(200).json({ message: "Conexión exitosa a Supabase" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "No se pudo conectar a Supabase" });
+    await client.connect();
+    const result = await client.query('SELECT NOW()');
+    res.json({ success: true, result });
+  } catch (error: any) {
+    res.json({ success: false, error: error.message });
+  } finally {
+    await client.end();
   }
-};
-
-export default testConnection;
+}
