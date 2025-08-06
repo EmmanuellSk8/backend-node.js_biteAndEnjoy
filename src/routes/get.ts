@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient()
+import { prisma } from "../lib/prisma";
 
 export const getReservations = async (req: any, res: any) => {
     if (req.method === "GET") {
