@@ -11,19 +11,18 @@ const getReservationByCedula = async (req: any, res: any) => {
         }
 
         if (cedula) {
-            const reservation = await prisma.reservations.findUnique({
+            const reservations = await prisma.reservations.findMany({
                 where: { cedula }
             })
-            if (!reservation) {
+            if (!reservations || reservations.length === 0) {
                 res.status(404).json({ error: "Reserva no encontrada" });
             }
-            res.status(200).json({ message: "Reserva encontrada", reservation: reservation });
+            res.status(200).json(reservations);
         }
     } catch (error) {
         console.log(`Error al obtener la reserva, Error: ${error}`)
-        res.status(200).json({ error: "Error al obtener la reserva" });
+        res.status(400).json({ error: "Error al obtener la reserva" });
     }
-
 };
 
 export default getReservationByCedula

@@ -19,8 +19,8 @@ const createReservation = async (req: any, res: any) => {
         res.status(400).json({ error: "el número de teléfono es muy corto" })
     }
 
-    if (quantityPeople > 12) {
-        res.status(400).json({ error: "el número de personas debe ser menor de 12" })
+    if (quantityPeople > 15) {
+        res.status(400).json({ error: "el número de personas debe ser menor de 16" })
     }
 
     try {
@@ -28,21 +28,42 @@ const createReservation = async (req: any, res: any) => {
             where: { date }
         })
 
-        if(existing){
-            return res.status(409).json({error: "Ya existe una reserva en esa fecha"})
+        if (existing) {
+            return res.status(409).json({ error: "Ya existe una reserva en esa fecha" })
         }
 
         const newReservation = await prisma.reservations.create({
             data: {
-                id: uuidv4(),
-                name,
-                email,
-                cedula,
-                phoneNumber,
-                date,
-                quantityPeople,
+                id: uuidv4().replace(/-/g, '').substring(0, 12),
+                name: req.body.name,
+                email: req.body.email,
+                cedula: String(req.body.cedula),
+                phoneNumber: String(req.body.phoneNumber),
+                quantityPeople: String(req.body.quantityPeople),
+                date: req.body.date,
             }
         })
+
+        try {
+            await fetch('http://localhost:5000/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    clave: newReservation.id,
+                    name: newReservation.name,
+                    to_email: newReservation.email,
+                    date: newReservation.date,
+                    type: "code",
+                    action: "creada"
+                }),
+            });
+
+        } catch (error) {
+            console.error('Error enviando datos al otro servicio: ', error);
+            return res.status(500).json({ error: 'Error al enviar datos' });
+        }
 
         res.status(201).json({ message: 'Reservation created', res: newReservation });
     } catch (error) {

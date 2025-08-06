@@ -1,4 +1,4 @@
-import { IsEmail, IsNumber, IsString } from "class-validator";
+import { IsEmail, IsString } from "class-validator";
 
 export class ReservationDTO {
     @IsString()
@@ -10,13 +10,13 @@ export class ReservationDTO {
     @IsEmail()
     email!: string;
 
-    @IsNumber()
+    @IsString()
     cedula!: number;
 
-    @IsNumber()
+    @IsString()
     phoneNumber!: number;
 
-    @IsNumber()
+    @IsString()
     quantityPeople!: number;
 
     @IsString()

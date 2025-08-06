@@ -3,26 +3,27 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const getReservationById = async (req: any, res: any) => {
-    const { id } = req.query;
+    const { id } = req.params;
+
     try {
         if (!id) {
-            return res.status(400).json({ message: "ID no proporcionado" });
+            return res.status(400).json({ message: "ID incorrecto" });
         }
 
-        if (id) {
-            const reservation = await prisma.reservations.findUnique({
-                where: { id }
-            })
-            if (!reservation) {
-                res.status(404).json({ message: "reserva no encontrada" });
-            }
+        const reservation = await prisma.reservations.findUnique({
+            where: { id }
+        });
 
-            res.status(200).json(reservation);
+        if (!reservation) {
+            return res.status(404).json({ message: "Reserva no encontrada" });
         }
+
+        return res.status(200).json(reservation);
+
     } catch (error) {
-        console.log(`Error al obtener la reserva, Error: ${error}`)
-        res.status(404).json({ error: 'No se encontró la reserva' });
+        console.error(`Error al obtener la reserva, Error: ${error}`);
+        return res.status(500).json({ error: 'Error del servidor' });
     }
 };
 
-export default getReservationById
+export default getReservationById;

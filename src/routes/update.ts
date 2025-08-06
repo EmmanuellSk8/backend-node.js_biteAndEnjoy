@@ -4,10 +4,9 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const updateReservation = async (req: any, res: any) => {
-    if (req.method === "PUT") {
+    if (req.method === "PATCH") {
         const { id } = req.params
         const data = req.body as Partial<ReservationDTO>
-        const { date } = req.body
 
         if (Object.entries(data).length === 0) {
             res.status(400).json({ error: 'No hay datos para actualizar' });
@@ -17,25 +16,54 @@ const updateReservation = async (req: any, res: any) => {
             res.status(400).json({ error: "el número de personas debe ser menor de 12" })
         }
         try {
-            const existing = await prisma.reservations.findFirst({
-                where: { date }
-            })
+            if (data.date) {
+                const currentReservation = await prisma.reservations.findUnique({ where: { id } });
 
-            if (existing) {
-                return res.status(409).json({ error: "Ya existe una reserva en esa fecha" })
+                if (currentReservation?.date !== data.date) {
+                    const existing = await prisma.reservations.findFirst({
+                        where: {
+                            date: data.date,
+                            NOT: { id },
+                        }
+                    });
+
+                    if (existing) {
+                        return res.status(409).json({ error: "Ya existe una reserva en esa fecha" });
+                    }
+                }
             }
-
             const updatedReservations = await prisma.reservations.update({
                 where: { id },
                 data: {
-                    name: data.name,
-                    email: data.email,
-                    cedula: data.cedula,
-                    phoneNumber: data.phoneNumber,
-                    date: data.date,
-                    quantityPeople: data.quantityPeople
+                    ...(data.name !== undefined && { name: data.name }),
+                    ...(data.email !== undefined && { email: data.email }),
+                    ...(data.cedula !== undefined && { cedula: String(data.cedula) }),
+                    ...(data.phoneNumber !== undefined && { phoneNumber: String(data.phoneNumber) }),
+                    ...(data.quantityPeople !== undefined && { quantityPeople: String(data.quantityPeople) }),
+                    ...(data.date !== undefined && { date: data.date }),
                 }
             });
+
+            try {
+                await fetch('http://localhost:5000/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        clave: updatedReservations.id,
+                        name: updatedReservations.name,
+                        to_email: updatedReservations.email,
+                        date: updatedReservations.date,
+                        type: "action",
+                        action: "actualizada"
+                    }),
+                });
+
+            } catch (error) {
+                console.error('Error enviando datos al otro servicio: ', error);
+                return res.status(500).json({ error: 'Error al enviar datos' });
+            }
 
             res.status(200).json({ message: 'Reserva actualizada', reserva: updatedReservations });
         } catch (error) {
